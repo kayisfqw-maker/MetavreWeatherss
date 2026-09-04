@@ -1,42 +1,50 @@
 name: Build Android APK
 
-# Bu workflow'u iki şekilde tetikleyebilirsin:
-# 1) main dalına her push yaptığında otomatik çalışır.
-# 2) GitHub'da "Actions" sekmesinden elle "Run workflow" butonuna basarak.
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch: {}
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+
     steps:
+      # GitHub kodlarını indir
       - name: Kodu indir
         uses: actions/checkout@v4
 
+      # Python
       - name: Python kur
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # Ubuntu runner'larında Java zaten kurulu gelir, ama sürümü
-      # sabitlemek için yine de açıkça kuruyoruz.
-      - name: Java (JDK 17) kur
+      # Java 17
+      - name: Java JDK 17 kur
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Flet'i kur
-        run: pip install "flet[all]"
+      # Python bağımlılıklarını kur
+      - name: Bağımlılıkları kur
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: APK'yı derle
-        run: yes | flet build apk --verbose
+      # APK oluştur
+      - name: APK oluştur
+        run: |
+          yes | flet build apk \
+            --verbose \
+            --permissions location
 
-      # Derlenen APK dosyasını "Actions" sekmesinden indirilebilir hale getirir.
-      - name: APK'yı yükle (artifact)
+      # APK'yı Actions'a yükle
+      - name: APK artifact yükle
         uses: actions/upload-artifact@v4
         with:
           name: metevra-weather-apk
           path: build/apk/*.apk
+          if-no-files-found: error
