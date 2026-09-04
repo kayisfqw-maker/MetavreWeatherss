@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android AAB
 
 on:
   push:
@@ -7,44 +7,38 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-apk:
+  build-aab:
     runs-on: ubuntu-latest
 
     steps:
-      # GitHub kodlarını indir
       - name: Kodu indir
         uses: actions/checkout@v4
 
-      # Python
       - name: Python kur
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # Java 17
       - name: Java JDK 17 kur
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "temurin"
           java-version: "17"
 
-      # Python bağımlılıklarını kur
       - name: Bağımlılıkları kur
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # APK oluştur
-      - name: APK oluştur
+      - name: Google Play AAB oluştur
         run: |
-          yes | flet build apk \
+          yes | flet build aab \
             --verbose \
             --permissions location
 
-      # APK'yı Actions'a yükle
-      - name: APK artifact yükle
+      - name: AAB artifact yükle
         uses: actions/upload-artifact@v4
         with:
-          name: metevra-weather-apk
-          path: build/apk/*.apk
+          name: metevra-weather-aab
+          path: build/aab/*.aab
           if-no-files-found: error
