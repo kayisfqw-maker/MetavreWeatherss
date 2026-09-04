@@ -1,0 +1,4 @@
+flet==0.86.5
+requests>=2.31.0
+flet-map==0.86.5
+flet-geolocator==0.85.3
