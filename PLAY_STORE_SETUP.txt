@@ -1,0 +1,33 @@
+METEVRA WEATHER - GOOGLE PLAY RELEASE
+
+1) Windows PowerShell'de upload keystore oluştur:
+
+keytool -genkeypair -v -keystore upload-keystore.jks -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+
+Şifreleri güvenli yerde sakla. upload-keystore.jks dosyasını GitHub'a commit ETME.
+
+2) Base64 oluştur:
+
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("$PWD\upload-keystore.jks")) | Set-Content -NoNewline upload-keystore.base64.txt
+
+3) GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret
+
+Şunları oluştur:
+ANDROID_KEYSTORE_BASE64 = upload-keystore.base64.txt içindeki tek satır
+ANDROID_KEYSTORE_PASSWORD = keystore şifresi
+ANDROID_KEY_PASSWORD = key şifresi
+ANDROID_KEY_ALIAS = upload
+
+4) Repo yapısı:
+main.py
+requirements.txt
+pyproject.toml
+assets/icon_android.png
+.github/workflows/build-apk.yml
+
+5) Commit/push yap. Actions -> Build Signed Google Play AAB -> Run workflow.
+
+Artifact:
+metevra-weather-release-aab -> .aab
+
+JKS ve base64 dosyasını GitHub'a yükleme.

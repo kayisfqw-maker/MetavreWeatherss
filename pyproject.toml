@@ -1,0 +1,11 @@
+[project]
+name = "metevra-weather"
+version = "1.0.0"
+description = "Metevra Weather"
+
+[tool.flet]
+product = "Metevra Weather"
+
+[tool.flet.android]
+target_sdk_version = 36
+adaptive_icon_background = "#142C5C"
