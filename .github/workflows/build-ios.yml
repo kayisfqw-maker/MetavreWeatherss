@@ -19,15 +19,23 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Flutter 3.44.8 kur
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.8"
+          channel: "stable"
+          cache: true
+
+      - name: Flutter kontrol
+        run: |
+          flutter --version
+          flutter doctor
+
       - name: Bağımlılıkları kur
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Flet kurulumunu kontrol et
-        run: |
           flet --version
-          python --version
 
       - name: iOS Simulator build
         run: |
@@ -35,6 +43,14 @@ jobs:
             --verbose \
             --bundle-id com.metevra.weather
 
-      - name: Build dosyalarını göster
+      - name: Build dosyalarını kontrol et
         run: |
-          find build -maxdepth 4 -type f | head -100
+          echo "=== BUILD ==="
+          find build -maxdepth 5 -type f | head -100
+
+      - name: Artifact yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: metevra-weather-ios-test
+          path: build/ios-simulator/**
+          if-no-files-found: error
