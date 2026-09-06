@@ -14,31 +14,44 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Python 3.11
+      - name: Python 3.11 kur
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Java 17
+      - name: Java 17 kur
         uses: actions/setup-java@v5
         with:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Install dependencies
+      # ÖNEMLİ: Flutter'ı Flet'ten önce kuruyoruz
+      - name: Flutter 3.44.8 kur
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.8"
+          channel: stable
+          cache: true
+
+      - name: Flutter kontrol
+        run: |
+          flutter --version
+          flutter doctor
+
+      - name: Python bağımlılıklarını kur
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           flet --version
 
-      - name: Create upload keystore
+      - name: Upload keystore oluştur
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > upload-keystore.jks
           test -s upload-keystore.jks
 
-      - name: Build signed AAB
+      - name: Release imzalı AAB oluştur
         env:
           FLET_ANDROID_SIGNING_KEY_STORE: upload-keystore.jks
           FLET_ANDROID_SIGNING_KEY_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -53,14 +66,14 @@ jobs:
             --permissions location \
             --android-adaptive-icon-background "#142C5C"
 
-      - name: Upload AAB
+      - name: AAB Artifact yükle
         uses: actions/upload-artifact@v4
         with:
           name: metevra-weather-release-aab
           path: build/aab/*.aab
           if-no-files-found: error
 
-      - name: Clean secrets
+      - name: Gizli dosyaları temizle
         if: always()
         run: |
           rm -f upload-keystore.jks
